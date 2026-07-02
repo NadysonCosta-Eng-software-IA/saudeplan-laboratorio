@@ -248,5 +248,15 @@ def alterar_paciente(id):
         conn.close()
 
 if __name__ == '__main__':
-    # Roda o servidor na porta 3000 com auto-reload ativado (igual ao nodemon)
-    app.run(port=3000, debug=True)
+    # 1. O Render envia uma porta dinâmica na variável 'PORT'. Se não existir, usa a 3000 local.
+    porta = int(os.environ.get("PORT", 3000))
+    
+    # 2. Descobre se está rodando no Render ou no seu PC local
+    eh_producao = os.environ.get("RENDER") is not None
+    
+    # 3. Configura o servidor de acordo com o ambiente
+    app.run(
+        host='0.0.0.0', 
+        port=porta, 
+        debug=not eh_producao  # Liga o debug (auto-reload) só no seu PC; desliga no Render
+    )

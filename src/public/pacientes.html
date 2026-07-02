@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaúdePlan - Gerenciamento de Pacientes</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">🧪 SaúdePlan Lab</div>
+        <div class="nav-links">
+            <a href="cadastro.html">Usuários</a>
+            <a href="pacientes.html" class="active">Pacientes</a>
+            <a href="javascript:void(0);" id="btnSair" class="btn btn-sair">Sair</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 id="formTituloPacientes">Gerenciamento de Pacientes</h1>
+        </div>
+        <div class="main-card">
+            <form id="formPaciente">
+                <input type="hidden" id="pacienteId">
+                
+                <h3 style="margin-bottom: 15px; color: #0284c7;">Dados Pessoais</h3>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 2;">
+                        <label for="nomePaciente">Nome Completo do Paciente</label>
+                        <input type="text" id="nomePaciente" placeholder="Ex: Maria Oliveira Souza" required>
+                    </div>
+                    <div class="form-group" style="flex: 2;">
+                        <label for="nomeMae">Nome da Mãe</label>
+                        <input type="text" id="nomeMae" placeholder="Nome completo da mãe">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cpfPaciente">CPF</label>
+                        <input type="text" id="cpfPaciente" placeholder="000.000.000-00" required maxlength="14">
+                    </div>
+                    <div class="form-group">
+                        <label for="dataNascimento">Data de Nascimento</label>
+                        <input type="date" id="dataNascimento" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="idadePaciente">Idade</label>
+                        <input type="text" id="idadePaciente" placeholder="Calculada automática" readonly style="background-color: #f1f5f9; font-weight: bold; color: #0284c7;">
+                    </div>
+                    <div class="form-group">
+                        <label for="generoPaciente">Gênero</label>
+                        <select id="generoPaciente">
+                            <option value="Nao Informado">Selecione...</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Feminino">Feminino</option>
+                            <option value="Outro">Outro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 25px; margin-bottom: 15px; color: #0284c7;">Endereço e Contato</h3>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="cepPaciente">CEP</label>
+                        <input type="text" id="cepPaciente" placeholder="00000-000" maxlength="9">
+                    </div>
+                    <div class="form-group" style="flex: 2;">
+                        <label for="ruaPaciente">Rua / Logradouro</label>
+                        <input type="text" id="ruaPaciente" placeholder="Av. Principal ou Rua...">
+                    </div>
+                    <div class="form-group" style="flex: 0.5;">
+                        <label for="numeroPaciente">Nº</label>
+                        <input type="text" id="numeroPaciente" placeholder="123">
+                    </div>
+                    <div class="form-group" style="flex: 1.5;">
+                        <label for="telefonePaciente">Telefone / WhatsApp</label>
+                        <input type="text" id="telefonePaciente" placeholder="(00) 00000-0000">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bairroPaciente">Bairro</label>
+                        <input type="text" id="bairroPaciente" placeholder="Centro">
+                    </div>
+                    <div class="form-group" style="flex: 2;">
+                        <label for="cidadePaciente">Cidade</label>
+                        <input type="text" id="cidadePaciente" placeholder="Sua Cidade">
+                    </div>
+                    <div class="form-group">
+                        <label for="estadoPaciente">Estado (UF)</label>
+                        <input type="text" id="estadoPaciente" placeholder="EX: SP" maxlength="2" style="text-transform: uppercase;">
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 25px; margin-bottom: 15px; color: #0284c7;">Histórico Clínico (Observações)</h3>
+                <div class="form-group">
+                    <label for="observacoesPaciente">Medicações contínuas, alergias ou comorbidades (Hipertensão, Diabetes, etc.)</label>
+                    <textarea id="observacoesPaciente" rows="3" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; font-size: 0.95rem;" placeholder="Digite aqui as observações clínicas relevantes..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" id="btnCancelarPaciente" class="btn" style="background-color: #64748b; color: white; display: none;">Cancelar</button>
+                    <button type="submit" id="btnSalvarPaciente" class="btn btn-success">Salvar Paciente</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="page-header" style="margin-top: 40px;">
+            <h2>Pacientes Registrados</h2>
+        </div>
+        
+        <div class="main-card" style="padding: 0;">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>CPF</th>
+                            <th>Data de Nasc.</th>
+                            <th>Telefone</th>
+                            <th style="text-align: right;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaPacientes">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

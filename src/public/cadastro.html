@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaúdePlan - Painel de Controle</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar">
+        <div class="logo">🧪 SaúdePlan Lab</div>
+        <div class="nav-links">
+            <a href="cadastro.html" class="active">Usuários</a>
+            <a href="pacientes.html">Pacientes</a> <a href="javascript:void(0);" id="btnSair" class="btn btn-sair" onclick="deslogar()">Sair</a>
+        </div>
+</nav>
+<div class="container">
+    <div class="page-header">
+            <h1 id="formTitulo">Gerenciamento de Usuários</h1>
+    </div>
+    <div class="main-card">
+    <form id="formUsuario" class="form-inline">
+        <input type="hidden" id="usuarioId"> 
+        <div class="form-row">
+            <div class="form-group">
+                <label for="nome">Nome Completo</label>
+                <input type="text" id="nome" placeholder="Ex: Dr. Carlos Silva" required>
+            </div>
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" placeholder="carlos@saudeplan.com" required>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="senha">Senha de Acesso</label>
+                <input type="password" id="senha" placeholder="Mínimo 6 caracteres">
+            </div>
+        </div>
+            <div class="form-group">
+                <label for="perfil">Perfil de Acesso</label>
+                <select id="perfil">
+                    <option value="tecnico">Técnico</option>
+                    <option value="biomedico">Biomédico</option>
+                    <option value="farmaceutico">Farmacêutico</option>
+                    <option value="admin">Administrador</option>
+                </select>
+            </div>
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="submit" id="btnSalvar" class="btn btn-success">Salvar Usuário</button>
+            <button type="button" id="btnCancelar" class="btn" style="background-color: #64748b; color: white; display: none;" onclick="resetarFormulario()">Cancelar</button>
+        </div>
+    </form>
+
+    <div class="page-header">
+        <h2>Profissionais Cadastrados</h2>
+    </div>
+    <div class="main-card" style="padding: 0;">
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>E-mail</th>
+                        <th>Perfil</th>
+                        <th style="text-align: right;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaUsuarios">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="js/main.js"></script>
+<!-- <script>
+    const API_URL = 'http://localhost:3000/api/usuarios';
+    const tabelaUsuarios = document.getElementById('tabelaUsuarios');
+    const formUsuario = document.getElementById('formUsuario');
+    const btnSalvar = formUsuario.querySelector('button[type="submit"]');
+
+    // Variável de controle: se tiver um ID aqui, o formulário sabe que está EDITANDO, não criando.
+    let idUsuarioEmEdicao = null;
+
+    // READ - Buscar no banco Neon e renderizar a tabela
+    async function carregarUsuarios() {
+        try {
+            const resposta = await fetch(API_URL);
+            if (!resposta.ok) throw new Error('Erro ao buscar dados');
+            
+            const usuarios = await resposta.json();
+            tabelaUsuarios.innerHTML = ''; 
+
+            usuarios.forEach(user => {
+                tabelaUsuarios.innerHTML += `
+                    <tr>
+                        <td>${user.id}</td>
+                        <td>${user.nome}</td>
+                        <td>${user.email}</td>
+                        <td><strong style="color: #007bff;">${user.perfil.toUpperCase()}</strong></td>
+                        <td>
+                            <button style="background-color: #ffc107; color: black; margin-right: 5px;" 
+                                onclick="prepararEdicao(${user.id}, '${user.nome}', '${user.perfil}')">
+                                Editar
+                            </button>
+                            <button class="btn-del" onclick="deletarUsuario(${user.id})">Excluir</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        } catch (erro) {
+            console.error('Erro ao listar:', erro);
+        }
+    }
+
+    // FUNÇÃO QUE PREPARA O FORMULÁRIO PARA EDIÇÃO
+    window.prepararEdicao = (id, nome, perfil) => {
+        idUsuarioEmEdicao = id; // Guarda o ID globalmente
+        
+        // Preenche os campos do formulário com os dados atuais
+        document.getElementById('nome').value = nome;
+        document.getElementById('perfil').value = perfil;
+        
+        // Esconde o campo de senha (não faz sentido editar senha por aqui por segurança)
+        const campoSenha = document.getElementById('senha');
+        if (campoSenha) {
+            campoSenha.required = false;
+            campoSenha.placeholder = "Deixe em branco para não alterar";
+            campoSenha.disabled = true; // Desabilita temporariamente
+        }
+
+        // Altera o texto do botão para o usuário saber que mudou o modo
+        btnSalvar.textContent = "Atualizar Cadastro";
+        btnSalvar.style.backgroundColor = "#28a745";
+    };
+
+    // FUNÇÃO PARA CANCELAR A EDIÇÃO E VOLTAR AO MODO CADASTRO
+    function resetarFormulario() {
+        idUsuarioEmEdicao = null;
+        formUsuario.reset();
+        btnSalvar.textContent = "Salvar";
+        btnSalvar.style.backgroundColor = ""; // Volta ao padrão do seu CSS
+        
+        const campoSenha = document.getElementById('senha');
+        if (campoSenha) {
+            campoSenha.required = true;
+            campoSenha.placeholder = "";
+            campoSenha.disabled = false;
+        }
+    }
+
+    // EVENTO UNIFICADO DE SUBMIT (CREATE OU UPDATE)
+    formUsuario.addEventListener('submit', async (e) => {
+        e.preventDefault(); 
+
+        const nome = document.getElementById('nome').value;
+        const perfil = document.getElementById('perfil').value;
+        
+        // Se estiver no modo EDIÇÃO
+        if (idUsuarioEmEdicao) {
+            try {
+                const resposta = await fetch(`${API_URL}/${idUsuarioEmEdicao}`, {
+                    method: 'PUT', // Método HTTP para Atualização
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, perfil })
+                });
+
+                if (resposta.ok) {
+                    alert('Usuário atualizado com sucesso no Neon!');
+                    resetarFormulario();
+                    carregarUsuarios(); // Recarrega a tabela modificada
+                } else {
+                    alert('Erro ao atualizar usuário.');
+                }
+            } catch (erro) {
+                alert('Erro na comunicação com o servidor.');
+            }
+        } 
+        // Se estiver no modo CADASTRO NOVO
+        else {
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+
+            try {
+                const resposta = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, email, senha, perfil })
+                });
+
+                if (resposta.ok) {
+                    alert('Sucesso total! Usuário gravado no Neon.');
+                    formUsuario.reset();
+                    carregarUsuarios();
+                } else {
+                    const dados = await resposta.json();
+                    alert('Erro do servidor: ' + (dados.error || 'Erro desconhecido'));
+                }
+            } catch (erro) {
+                alert('Erro na comunicação: ' + erro.message);
+            }
+        }
+    });
+
+    // DELETE - Deletar Usuário do Neon
+    window.deletarUsuario = async (id) => {
+        if (confirm('Deseja realmente excluir este usuário?')) {
+            try {
+                const resposta = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                if (resposta.ok) {
+                    alert('Usuário removido com sucesso!');
+                    if(idUsuarioEmEdicao === id) resetarFormulario();
+                    carregarUsuarios();
+                } else {
+                    alert('Erro ao deletar do banco.');
+                }
+            } catch (erro) {
+                alert('Erro de rede ao deletar.');
+            }
+        }
+    };
+
+    // Executa automaticamente ao abrir a página
+    carregarUsuarios();
+</script>-->
+</body>
+</html>

@@ -231,6 +231,7 @@ function calcularIdade(dataNasc) {
 // Escuta o carregamento da página
 document.addEventListener('DOMContentLoaded', () => {
     carregarPacientes();
+    
     // 1. Ativa o cálculo da idade dinâmico
     const campoDataNasc = document.getElementById('dataNascimento');
     const campoIdade = document.getElementById('idadePaciente');
@@ -267,8 +268,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 observacoes: document.getElementById('observacoesPaciente').value
             };
 
-            // URL da sua API Flask local (Porta 3000 ou 5000 dependendo do seu projeto)
-            const url = id ? API_URL +'pacientes/${id}' : API_URL +'/pacientes';
+            // CORREÇÃO AQUI: URLs limpas usando Template Literals corretos (crases ` `)
+            const url = id ? `${API_URL}/pacientes/${id}` : `${API_URL}/pacientes`;
             const method = id ? 'PUT' : 'POST';
 
             try {
@@ -279,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (resposta.ok) {
-                    alert(id ? 'Paciente atualizado com sucesso!' : 'Paciente cadastrado com sucesso!');
+                    alert(id ? 'Paciente updated com sucesso!' : 'Paciente cadastrado com sucesso!');
                     formPaciente.reset();
                     if(campoIdade) campoIdade.value = ''; // Limpa o campo idade
                     carregarPacientes();
@@ -293,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (err) {
                 console.error('Erro no Fetch:', err);
-                alert('Erro de comunicação com o servidor Flask.');
+                alert('Erro de comunicação com o servidor.');
             }
         });
     }
@@ -305,13 +306,13 @@ async function carregarPacientes() {
     if (!tabelaPacientes) return; // Só executa se estiver na página de pacientes
 
     try {
-        // Altere para a porta do seu projeto (3000 ou 5000)
-        const resposta = await fetch(API_URL +'/pacientes');
+        // CORREÇÃO AQUI: Removida a barra extra para evitar //pacientes
+        const resposta = await fetch(`${API_URL}/pacientes`);
         
         if (!resposta.ok) throw new Error('Erro ao buscar pacientes');
         
         const pacientes = await resposta.json();
-        tabelaPacientes.innerHTML = ''; // Limpa a tabela antes de preencher
+        tabelaPacientes.innerHTML = ''; 
 
         if (pacientes.length === 0) {
             tabelaPacientes.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b;">Nenhum paciente cadastrado ainda.</td></tr>`;
@@ -319,7 +320,6 @@ async function carregarPacientes() {
         }
 
         pacientes.forEach(p => {
-            // Formata a data de nascimento para o padrão brasileiro (DD/MM/AAAA)
             const dataFormatada = p.data_nascimento ? p.data_nascimento.split('-').reverse().join('/') : '---';
             
             tabelaPacientes.innerHTML += `
@@ -352,13 +352,14 @@ async function deletarPaciente(id) {
     if (!confirm('Tem certeza que deseja excluir permanentemente este paciente?')) return;
 
     try {
-        const resposta = await fetch(`http://localhost:3000/api/pacientes/${id}`, {
+        // CORREÇÃO AQUI: Agora aponta para a API_URL dinâmica, funcionando local e na nuvem
+        const resposta = await fetch(`${API_URL}/pacientes/${id}`, {
             method: 'DELETE'
         });
 
         if (resposta.ok) {
             alert('Paciente removido com sucesso!');
-            carregarPacientes(); // Atualiza a lista na tela
+            carregarPacientes(); 
         } else {
             const erro = await resposta.json();
             alert(erro.error || 'Erro ao deletar paciente.');
